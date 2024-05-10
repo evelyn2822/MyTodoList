@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet, Modal } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, StyleSheet, Modal, Dimensions, ScrollView } from 'react-native';
 import { useStore } from './store';
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 const ToDoList = () => {
   const [text, setText] = useState('');
@@ -29,16 +32,16 @@ const ToDoList = () => {
 
   const handleEditTodo = () => {
     if (editItemText.trim() !== '') {
-      editTodo(editItemId, editItemText); // Corrected placement of editTodo
-      setModalVisible(false); // Close the modal after updating the text
-      setEditItemText(''); // Clear the editItemText state
+      editTodo(editItemId, editItemText);
+      setModalVisible(false);
+      setEditItemText('');
     }  
   };
 
   const openEditModal = (id, currentText) => {
     setEditItemId(id);
     setEditItemText(currentText);
-    setModalVisible(true); // Set the modal to be visible when editing
+    setModalVisible(true);
   };
 
   const renderItem = ({ item }) => (
@@ -63,24 +66,19 @@ const ToDoList = () => {
   return (
     <View style={styles.container}>
       <TextInput
-        style={{ borderWidth: 1, padding: 10, marginBottom: 10, width: 400 }}
+        style={styles.input}
         value={text}
         onChangeText={setText}
       />
-      <View style={styles.add}>
-        <Button title="Add" onPress={handleAddTodo} color="#135D66" />
-        <View style={styles.box}>
-          {todos.length === 0 ? (
-            <Text style={{ textAlign: "center" }}>No ToDoList Today</Text>
-          ) : (
-            <FlatList
-              data={todos}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id.toString()} // Convert id to string
-            />
-          )}
-        </View>
-      </View>
+      <Button title="Add" onPress={handleAddTodo} color="#135D66" />
+      <FlatList
+        data={todos}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+        style={styles.list}
+        contentContainerStyle={todos.length === 0 && styles.emptyListContainer}
+        ListEmptyComponent={<Text style={styles.emptyListText}>No To-Do List Today</Text>}
+      />
       <Modal
         animationType="slide"
         transparent={true}
@@ -90,10 +88,10 @@ const ToDoList = () => {
           setEditItemText('');
         }}
       >
-        <View style={styles.centeredView}>
+        <View style={styles.modalContainer}>
           <View style={styles.modalView}>
             <TextInput
-              style={{ borderWidth: 1, padding: 10, marginBottom: 10, width: 200 }}
+              style={styles.input}
               value={editItemText}
               onChangeText={setEditItemText}
             />
@@ -108,55 +106,53 @@ const ToDoList = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
+    padding: 20,
   },
-  box: {
+  input: {
     borderWidth: 1,
-    borderColor: 'black',
-    borderRadius: 5,
     padding: 10,
-    marginTop: 10,
-    width: 400,
+    marginBottom: 10,
   },
-  add: {
-    marginBottom: 1000,
-    borderRadius: 5,
+  list: {
+    flex: 1,
   },
   itemContainer: {
     flexDirection: 'row',
-    marginBottom: 20,
-    marginRight: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    marginBottom: 10,
+    marginTop: 15,
+    borderRadius: 5,
   },
   itemText: {
     flex: 1,
   },
   buttonContainer: {
     flexDirection: 'row',
-    borderRadius: 5,
-    marginRight: 5,
   },
-  centeredView: {
+  emptyListContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyListText: {
+    fontSize: 16,
+    color: '#888',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    width: '80%',
   },
 });
 
